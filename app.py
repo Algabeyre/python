@@ -172,13 +172,16 @@ def logout():
     session.clear()
     return redirect(url_for('login'))
 
+# --- MOVE THIS OUTSIDE SO GUNICORN RUNS IT ---
+with app.app_context():
+    db.create_all()
+    result = db.session.execute(text("PRAGMA table_info('transaction')"))
+    columns = [row[1] for row in result]
+    if 'user_id' not in columns:
+        db.session.execute(text("ALTER TABLE 'transaction' ADD COLUMN user_id INTEGER"))
+        db.session.commit()
+# ---------------------------------------------
 
 if __name__ == '__main__':
-    with app.app_context():
-        db.create_all()
-        result = db.session.execute(text("PRAGMA table_info('transaction')"))
-        columns = [row[1] for row in result]
-        if 'user_id' not in columns:
-            db.session.execute(text("ALTER TABLE 'transaction' ADD COLUMN user_id INTEGER"))
-            db.session.commit()
+    # Keep app.run here; it will only fire when you test locally
     app.run(debug=True)
