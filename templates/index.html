@@ -190,6 +190,26 @@
             transform: scale(0.98);
         }
 
+        .flash-message {
+            padding: 16px 20px;
+            border-radius: 12px;
+            margin-bottom: 24px;
+            border: 1px solid transparent;
+            font-weight: 600;
+        }
+
+        .flash-message.success {
+            background-color: #e6f4ea;
+            border-color: #a5d6a7;
+            color: #1e4620;
+        }
+
+        .flash-message.error {
+            background-color: #fde8e8;
+            border-color: #f5a9a9;
+            color: #7d1717;
+        }
+
         /* Table */
         .table-container {
             overflow-x: auto;
@@ -266,8 +286,26 @@
 <body>
     <div class="container">
         <header>
-            <h1><i class="fa-solid fa-wallet" style="color: var(--primary); margin-right: 10px;"></i>Budget Tracker</h1>
+            <div>
+                <h1><i class="fa-solid fa-wallet" style="color: var(--primary); margin-right: 10px;"></i>Budget Tracker</h1>
+                {% if username %}
+                <p style="margin: 8px 0 0; color: var(--text-muted);">Logged in as <strong>{{ username }}</strong></p>
+                {% endif %}
+            </div>
+            <div>
+                <a href="/logout" style="font-weight: 600; color: var(--primary); text-decoration: none;">Logout</a>
+            </div>
         </header>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        <div>
+            {% for category, message in messages %}
+            <div class="flash-message {{ category }}">{{ message }}</div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        {% endwith %}
 
         <div class="summary-cards">
             <div class="card balance">
