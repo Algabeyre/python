@@ -1,9 +1,8 @@
 ﻿import os
 from flask import Flask, render_template, request, redirect, url_for, flash, session
 from flask_sqlalchemy import SQLAlchemy
-from flask_sqlalchemy import tex
-# KEEP YOUR WERKZEUG IMPORTS HERE SO THEY DON'T GO AWAY:
 from werkzeug.security import generate_password_hash, check_password_hash
+
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'change-this-secret')
