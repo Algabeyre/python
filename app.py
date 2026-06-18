@@ -9,15 +9,16 @@ app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'change-this-secret')
 
 # --- This is the new database configuration code ---
 # --- Resilient Database Configuration ---
+D# --- Resilient Database Configuration ---
 DATABASE_URL = os.environ.get('DATABASE_URL')
 
 if DATABASE_URL:
-    # Handle Render's default postgres:// scheme requirement manually
+    # Safe check for trailing whitespaces or carriage returns
+    DATABASE_URL = DATABASE_URL.strip()
+    
+    # Adapt Render's default postgres:// scheme syntax to postgresql://
     if DATABASE_URL.startswith("postgres://"):
         DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
-    
-    # Strip any accidental hidden spaces or characters that cause parsing failures
-    DATABASE_URL = DATABASE_URL.strip()
 
 app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URL or 'sqlite:///budget.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
