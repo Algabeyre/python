@@ -125,6 +125,18 @@
                     <label for="password">Password</label>
                     <input type="password" name="password" id="password" required>
                 </div>
+                <div class="input-group" style="margin-bottom:6px;">
+                    <label for="savedAccounts">Saved Accounts</label>
+                    <div style="display:flex; gap:8px; align-items:center;">
+                        <select id="savedAccounts" style="flex:1; padding:12px 8px; border-radius:8px; border:1px solid var(--border); background:var(--bg-color);"></select>
+                        <button type="button" id="useAccount" style="padding:10px 12px; border-radius:8px; border:none; background:var(--primary); color:#fff; font-weight:700;">Use</button>
+                        <button type="button" id="deleteAccount" title="Delete selected" style="padding:10px 12px; border-radius:8px; border:1px solid var(--border); background:transparent; color:var(--text-muted);">✕</button>
+                    </div>
+                </div>
+                <div class="input-group" style="flex-direction:row; align-items:center; gap:12px; margin-bottom:6px;">
+                    <label style="margin:0; font-weight:600;">Remember credentials</label>
+                    <input type="checkbox" id="remember" name="remember">
+                </div>
                 <button type="submit">Log In</button>
             </form>
             <div class="footer">
@@ -134,4 +146,68 @@
         </div>
     </div>
 </body>
+    <script>
+        // Multiple-account remember using localStorage
+        const savedKey = 'budget_saved_accounts_v1';
+        const sel = document.getElementById('savedAccounts');
+        const useBtn = document.getElementById('useAccount');
+        const delBtn = document.getElementById('deleteAccount');
+        const usernameInput = document.getElementById('username');
+        const passwordInput = document.getElementById('password');
+        const rememberCheckbox = document.getElementById('remember');
+
+        function loadAccounts(){
+            sel.innerHTML = '';
+            let list = [];
+            try{ list = JSON.parse(localStorage.getItem(savedKey) || '[]'); }catch(e){ list = []; }
+            if(list.length === 0){
+                const opt = document.createElement('option'); opt.text = 'No saved accounts'; opt.value=''; sel.add(opt);
+                return;
+            }
+            list.forEach(acc => {
+                const opt = document.createElement('option'); opt.text = acc.username; opt.value = acc.username; sel.add(opt);
+            });
+        }
+
+        function saveAccount(username, password){
+            if(!username) return;
+            let list = [];
+            try{ list = JSON.parse(localStorage.getItem(savedKey) || '[]'); }catch(e){ list = []; }
+            // replace if username exists
+            const idx = list.findIndex(a=>a.username===username);
+            if(idx>=0) list[idx] = {username, password}; else list.push({username, password});
+            localStorage.setItem(savedKey, JSON.stringify(list));
+            loadAccounts();
+        }
+
+        function deleteSelected(){
+            const user = sel.value;
+            if(!user) return;
+            let list = [];
+            try{ list = JSON.parse(localStorage.getItem(savedKey) || '[]'); }catch(e){ list = []; }
+            list = list.filter(a=>a.username !== user);
+            localStorage.setItem(savedKey, JSON.stringify(list));
+            loadAccounts();
+        }
+
+        useBtn?.addEventListener('click', ()=>{
+            const user = sel.value;
+            if(!user) return;
+            let list = [];
+            try{ list = JSON.parse(localStorage.getItem(savedKey) || '[]'); }catch(e){ list = []; }
+            const acc = list.find(a=>a.username===user);
+            if(acc){ usernameInput.value = acc.username; passwordInput.value = acc.password; }
+        });
+
+        delBtn?.addEventListener('click', ()=>{ deleteSelected(); });
+
+        // On form submit, if remember is checked, save credentials
+        document.querySelector('form[action="/login"]').addEventListener('submit', (e)=>{
+            if(rememberCheckbox && rememberCheckbox.checked){
+                saveAccount(usernameInput.value.trim(), passwordInput.value);
+            }
+        });
+
+        loadAccounts();
+    </script>
 </html>
