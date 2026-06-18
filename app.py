@@ -1,16 +1,25 @@
-﻿from functools import wraps
-import os
-from flask import Flask, render_template, request, redirect, url_for, session, flash
+﻿import os
+from flask import Flask, render_template, request, redirect, url_for, flash, session
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import text
-from werkzeug.security import check_password_hash, generate_password_hash
+from flask aqlchemy import text
+# KEEP YOUR WERKZEUG IMPORTS HERE SO THEY DON'T GO AWAY:
+from werkzeug.security import generate_password_hash, check_password_hash
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'change-this-secret')
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///budget.db'
+
+# --- This is the new database configuration code ---
+DATABASE_URL = os.environ.get('DATABASE_URL')
+
+if DATABASE_URL and DATABASE_URL.startswith("postgres://"):
+    DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
+
+app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URL or 'sqlite:///budget.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+# --------------------------------------------------
 
 db = SQLAlchemy(app)
+
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
