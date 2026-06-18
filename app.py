@@ -1,4 +1,5 @@
 ﻿import os
+from functools import wraps
 from flask import Flask, render_template, request, redirect, url_for, flash, session
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -7,9 +8,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'change-this-secret')
 
-# --- This is the new database configuration code ---
 # --- Resilient Database Configuration ---
-D# --- Resilient Database Configuration ---
 DATABASE_URL = os.environ.get('DATABASE_URL')
 
 if DATABASE_URL:
